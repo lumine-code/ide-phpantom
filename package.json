@@ -1,15 +1,15 @@
 {
-  "name": "ide-php",
+  "name": "ide-phpantom",
   "author": "lumine-code",
   "description": "Provide PHP language intelligence through PHPantom.",
-  "repository": "https://github.com/lumine-code/ide-php",
+  "repository": "https://github.com/lumine-code/ide-phpantom",
   "bugs": {
-    "url": "https://github.com/lumine-code/ide-php/issues"
+    "url": "https://github.com/lumine-code/ide-phpantom/issues"
   },
   "keywords": [
-    "phpantom",
     "composer",
     "psr-4",
+    "autoloading",
     "language-server",
     "lsp",
     "refactoring"

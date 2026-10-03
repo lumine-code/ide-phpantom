@@ -8,7 +8,7 @@ if (process.env.REQUIRE_PHPANTOM && !serverPath)
   throw new Error("CI requires a native PHPantom executable.");
 const liveSuite = serverPath ? describe : () => {};
 
-liveSuite("ide-php real PHPantom protocol", () => {
+liveSuite("ide-phpantom real PHPantom protocol", () => {
   let fixture, client, adapter, edge, timeout;
   beforeAll(() => {
     timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -20,8 +20,8 @@ liveSuite("ide-php real PHPantom protocol", () => {
   beforeEach(async () => {
     jasmine.useRealClock();
     fixture = createProject();
-    const main = (await lumine.packages.activatePackage("ide-php")).mainModule;
-    lumine.config.set("ide-php.serverPath", serverPath);
+    const main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
+    lumine.config.set("ide-phpantom.serverPath", serverPath);
     edge = main.consumeIdeClient({
       registerAdapter(value) {
         adapter = value;
@@ -33,8 +33,8 @@ liveSuite("ide-php real PHPantom protocol", () => {
   afterEach(async () => {
     await client.stop();
     edge.dispose();
-    lumine.config.unset("ide-php.serverPath");
-    await lumine.packages.deactivatePackage("ide-php");
+    lumine.config.unset("ide-phpantom.serverPath");
+    await lumine.packages.deactivatePackage("ide-phpantom");
     removeProject(fixture.rootPath);
   });
   const start = async () => {
@@ -92,7 +92,7 @@ liveSuite("ide-php real PHPantom protocol", () => {
       expect(record.version).toBe("0.10.0");
       const installed = managed.installFor(adapter);
       expect(fs.statSync(installed.binaryPath).isFile()).toBe(true);
-      lumine.config.set("ide-php.serverPath", "");
+      lumine.config.set("ide-phpantom.serverPath", "");
       await client.start(installed);
       await exercise.openProject(client, fixture);
       await exercise.navigationAndRename(client, fixture);

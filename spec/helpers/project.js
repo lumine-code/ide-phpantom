@@ -4,7 +4,7 @@ const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 
 const createProject = () => {
-  const rootPath = fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), "ide-php-"));
+  const rootPath = fs.mkdtempSync(path.join(fs.realpathSync.native(os.tmpdir()), "ide-phpantom-"));
   fs.mkdirSync(path.join(rootPath, "src"));
   fs.writeFileSync(
     path.join(rootPath, "composer.json"),
@@ -47,7 +47,7 @@ const createProject = () => {
 const removeProject = (rootPath) => {
   const target = path.resolve(rootPath),
     parent = fs.realpathSync.native(os.tmpdir());
-  if (path.dirname(target) !== parent || !path.basename(target).startsWith("ide-php-"))
+  if (path.dirname(target) !== parent || !path.basename(target).startsWith("ide-phpantom-"))
     throw new Error(`Refusing to remove a non-test directory: ${target}`);
   fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 };

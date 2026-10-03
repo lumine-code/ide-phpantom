@@ -1,4 +1,4 @@
-# ide-php
+# ide-phpantom
 
 Provide PHP language intelligence through PHPantom.
 
@@ -18,7 +18,7 @@ Registers the native [PHPantom](https://github.com/PHPantom-dev/phpantom_lsp) la
 
 ## Installation
 
-To install `ide-php` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-php`.
+To install `ide-phpantom` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-phpantom`.
 
 Install `ide-client`, `language-php` and the frontends you want, such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format`. Select an existing `phpantom_lsp` executable in Server Path or install it through `ide-client:manage-servers`.
 

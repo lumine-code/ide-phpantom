@@ -12,7 +12,7 @@ const until = async (check, label) => {
   throw new Error(`${label} timed out`);
 };
 
-liveSuite("ide-php actual editor routing", () => {
+liveSuite("ide-phpantom actual editor routing", () => {
   let fixture, editors, paths, service, timeout, published, subscription;
   beforeAll(() => {
     timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -27,8 +27,8 @@ liveSuite("ide-php actual editor routing", () => {
     editors = {};
     paths = lumine.project.getPaths();
     published = [];
-    lumine.config.set("ide-php.serverPath", serverPath);
-    for (const name of ["language-php", "ide-client", "ide-php"])
+    lumine.config.set("ide-phpantom.serverPath", serverPath);
+    for (const name of ["language-php", "ide-client", "ide-phpantom"])
       await lumine.packages.activatePackage(name);
     service = lumine.packages.getActivePackage("ide-client").mainModule.provideIdeClient();
     subscription = service.onDidPublishDiagnostics((value) => published.push(value));
@@ -43,7 +43,7 @@ liveSuite("ide-php actual editor routing", () => {
     for (const editor of Object.values(editors)) editor?.destroy();
     for (const editor of lumine.workspace.getTextEditors())
       if (editor.getPath()?.startsWith(fixture.rootPath)) editor.destroy();
-    for (const name of ["ide-php", "ide-client", "language-php"])
+    for (const name of ["ide-phpantom", "ide-client", "language-php"])
       await lumine.packages.deactivatePackage(name);
     for (const key of [
       "serverPath",
@@ -53,7 +53,7 @@ liveSuite("ide-php actual editor routing", () => {
       "features.hover",
       "features.diagnostics",
     ])
-      lumine.config.unset(`ide-php.${key}`);
+      lumine.config.unset(`ide-phpantom.${key}`);
     lumine.project.setPaths(paths);
     await lumine.fileWatchClient.settlePendingTeardown();
     removeProject(fixture.rootPath);
@@ -66,7 +66,7 @@ liveSuite("ide-php actual editor routing", () => {
     until(
       async () =>
         (await service.activeSessionsForEditor(editors.main)).find(
-          ({ adapter }) => adapter.id === "ide-php",
+          ({ adapter }) => adapter.id === "ide-phpantom",
         ),
       "PHP session",
     );
@@ -165,9 +165,9 @@ liveSuite("ide-php actual editor routing", () => {
     expect(editors.incomplete.getText()).toContain(
       "public function greeting(string $name): string",
     );
-    lumine.config.set("ide-php.features.format", false);
+    lumine.config.set("ide-phpantom.features.format", false);
     expect(await m.provideCodeFormatFile().formatEntireFile(editors.main)).toEqual([]);
-    lumine.config.set("ide-php.features.codeLens", false);
+    lumine.config.set("ide-phpantom.features.codeLens", false);
     expect(await m.provideCodeLens().codeLenses(editors.greeter)).toBeNull();
     const hiddenLensRename = await m
       .provideRefactor()
@@ -178,11 +178,11 @@ liveSuite("ide-php actual editor routing", () => {
           .get(fixture.files[key])
           ?.filter(({ newText }) => newText === "welcome").length,
       ).toBe(1);
-    lumine.config.set("ide-php.features.rename", false);
+    lumine.config.set("ide-phpantom.features.rename", false);
     expect(
       await m.provideRefactor().rename(editors.main, point("main", "greeting(", 2), "welcome"),
     ).toBeNull();
-    lumine.config.set("ide-php.features.hover", false);
+    lumine.config.set("ide-phpantom.features.hover", false);
     expect(await m.provideHover().hover(editors.main, point("main", "greeting(", 2))).toBeNull();
     expect(session.state).toBe("running");
   });
@@ -206,15 +206,15 @@ liveSuite("ide-php actual editor routing", () => {
           .some(({ uri, diagnostics }) => uri === fixture.uris.broken && diagnostics.length === 0),
       "cleared PHP diagnostics",
     );
-    const pkg = lumine.packages.getActivePackage("ide-php"),
+    const pkg = lumine.packages.getActivePackage("ide-phpantom"),
       oldMain = pkg.mainModule,
       packagePath = pkg.path;
-    await lumine.packages.deactivatePackage("ide-php");
+    await lumine.packages.deactivatePackage("ide-phpantom");
     await until(() => previous.state === "stopped", "PHP teardown");
     expect(service.adaptersForEditor(editors.main)).toEqual([]);
-    await lumine.packages.unloadPackage("ide-php");
+    await lumine.packages.unloadPackage("ide-phpantom");
     await lumine.packages.loadPackage(packagePath);
-    expect((await lumine.packages.activatePackage("ide-php")).mainModule).not.toBe(oldMain);
+    expect((await lumine.packages.activatePackage("ide-phpantom")).mainModule).not.toBe(oldMain);
     expect(await ready()).not.toBe(previous);
   });
 });

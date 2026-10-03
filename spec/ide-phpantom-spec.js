@@ -2,16 +2,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { createProject, removeProject } = require("./helpers/project");
 
-describe("ide-php executable discovery and managed installs", () => {
+describe("ide-phpantom executable discovery and managed installs", () => {
   let fixture, server;
   beforeEach(async () => {
     jasmine.useRealClock();
     fixture = createProject();
-    await lumine.packages.activatePackage("ide-php");
+    await lumine.packages.activatePackage("ide-phpantom");
     server = require("../lib/server");
   });
   afterEach(async () => {
-    await lumine.packages.deactivatePackage("ide-php");
+    await lumine.packages.deactivatePackage("ide-phpantom");
     removeProject(fixture.rootPath);
   });
   it("prefers an explicit executable over a managed copy and PATH", async () => {
@@ -128,10 +128,10 @@ describe("ide-php executable discovery and managed installs", () => {
   });
 });
 
-describe("ide-php service lifecycle", () => {
+describe("ide-phpantom service lifecycle", () => {
   let main, adapter, edge, cleanup;
   beforeEach(async () => {
-    main = (await lumine.packages.activatePackage("ide-php")).mainModule;
+    main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
     cleanup = jasmine.createSpy("cleanup");
     edge = main.consumeIdeClient({
       registerAdapter(value) {
@@ -142,14 +142,14 @@ describe("ide-php service lifecycle", () => {
   });
   afterEach(async () => {
     edge.dispose();
-    lumine.config.unset("ide-php.serverPath");
-    await lumine.packages.deactivatePackage("ide-php");
+    lumine.config.unset("ide-phpantom.serverPath");
+    await lumine.packages.deactivatePackage("ide-phpantom");
   });
   it("serves PHP and mixed PHP grammars through one project-root adapter", () => {
     expect(adapter.grammarScopes).toEqual(["text.html.php", "source.php"]);
     expect(adapter.languageId).toBe("php");
     expect(adapter.sessionScope).toBe("project-root");
-    expect(adapter.restartKeyPaths).toEqual(["ide-php.serverPath"]);
+    expect(adapter.restartKeyPaths).toEqual(["ide-phpantom.serverPath"]);
   });
   it("returns cleanup for its exact consumed-service edge", () => {
     edge.dispose();
@@ -168,13 +168,13 @@ describe("ide-php service lifecycle", () => {
     expect(secondCleanup).toHaveBeenCalled();
   });
   it("reacquires the module generation after unload", async () => {
-    const packagePath = lumine.packages.getActivePackage("ide-php").path;
-    await lumine.packages.deactivatePackage("ide-php");
-    await lumine.packages.unloadPackage("ide-php");
+    const packagePath = lumine.packages.getActivePackage("ide-phpantom").path;
+    await lumine.packages.deactivatePackage("ide-phpantom");
+    await lumine.packages.unloadPackage("ide-phpantom");
     await lumine.packages.loadPackage(packagePath);
-    const current = (await lumine.packages.activatePackage("ide-php")).mainModule;
+    const current = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
     expect(current).not.toBe(main);
-    expect(current.provideBackgroundTips().packageName).toBe("ide-php");
+    expect(current.provideBackgroundTips().packageName).toBe("ide-phpantom");
   });
   it("leaves composer and project server settings authoritative", () => {
     expect(adapter.getSettings).toBeUndefined();
@@ -197,18 +197,18 @@ describe("ide-php service lifecycle", () => {
       });
     try {
       expect(await value.resolveServer({ rootPath: "/project" })).toBeNull();
-      expect(missing.calls.mostRecent().args[0]).toBe("ide-php");
+      expect(missing.calls.mostRecent().args[0]).toBe("ide-phpantom");
     } finally {
       registration.dispose();
     }
   });
 });
 
-describe("ide-php canonical rename targets", () => {
+describe("ide-phpantom canonical rename targets", () => {
   let fixture, adapter, edge;
   beforeEach(async () => {
     fixture = createProject();
-    const main = (await lumine.packages.activatePackage("ide-php")).mainModule;
+    const main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
     edge = main.consumeIdeClient({
       registerAdapter(value) {
         adapter = value;
@@ -218,7 +218,7 @@ describe("ide-php canonical rename targets", () => {
   });
   afterEach(async () => {
     edge.dispose();
-    await lumine.packages.deactivatePackage("ide-php");
+    await lumine.packages.deactivatePackage("ide-phpantom");
     removeProject(fixture.rootPath);
   });
   const session = (version, request) => ({

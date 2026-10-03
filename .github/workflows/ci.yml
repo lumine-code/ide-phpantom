@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Checks on ${{ matrix.os }} (Node 24)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm pack --dry-run
+
+  integration:
+    name: Real PHPantom and Lumine integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      LUMINE_JASMINE_REPORTER: list
+      LUMINE_TEST_PACKAGES: ide-client language-php
+      PHPANTOM_VERSION: 0.10.0
+      REQUIRE_PHPANTOM: 1
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: ide-php
+      - uses: actions/checkout@v7
+        with:
+          repository: lumine-code/lumine
+          path: lumine
+      - uses: actions/checkout@v7
+        with:
+          repository: lumine-code/ide-client
+          path: ide-client
+      - uses: actions/checkout@v7
+        with:
+          repository: lumine-code/language-php
+          path: language-php
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: lumine/.nvmrc
+          cache: npm
+          cache-dependency-path: lumine/package-lock.json
+      - name: Install the exact checksum-verified native PHPantom release
+        run: |
+          mkdir "$GITHUB_WORKSPACE/phpantom"
+          curl --fail --location --retry 3 --output phpantom.tar.gz https://github.com/PHPantom-dev/phpantom_lsp/releases/download/0.10.0/phpantom_lsp-x86_64-unknown-linux-gnu.tar.gz
+          echo "2b385588779cdfdb804371f99c9161b0ef41b6e57d34ed4e1b6963686f81dc20  phpantom.tar.gz" | sha256sum --check
+          tar -xzf phpantom.tar.gz -C "$GITHUB_WORKSPACE/phpantom"
+          chmod +x "$GITHUB_WORKSPACE/phpantom/phpantom_lsp"
+          echo "PHPANTOM_PATH=$GITHUB_WORKSPACE/phpantom/phpantom_lsp" >> "$GITHUB_ENV"
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y xvfb libx11-dev libxkbfile-dev libsecret-1-dev
+      - name: Use HTTPS for public Git dependencies
+        run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+      - name: Install adapter dependencies
+        working-directory: ide-php
+        run: npm ci --ignore-scripts
+      - name: Install client dependencies
+        working-directory: ide-client
+        run: npm ci --ignore-scripts
+      - name: Install editor dependencies
+        working-directory: lumine
+        run: |
+          install() { npm ci --ignore-scripts; }
+          install || install || install
+      - name: Prepare Electron
+        working-directory: lumine
+        run: |
+          node node_modules/electron/install.js
+          npm run build
+      - name: Link editor service packages
+        run: |
+          echo "LUMINE_HOME=$GITHUB_WORKSPACE/.test-home" >> "$GITHUB_ENV"
+          mkdir -p "$GITHUB_WORKSPACE/.test-home/packages"
+          ln -s "$GITHUB_WORKSPACE/ide-client" "$GITHUB_WORKSPACE/.test-home/packages/ide-client"
+          ln -s "$GITHUB_WORKSPACE/language-php" "$GITHUB_WORKSPACE/.test-home/packages/language-php"
+      - name: Run Jasmine specs against the real editor and native server
+        working-directory: lumine
+        timeout-minutes: 20
+        run: xvfb-run --auto-servernum npm start -- --dev --test ../ide-php/spec

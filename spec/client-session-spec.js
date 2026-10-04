@@ -99,7 +99,7 @@ liveSuite("ide-phpantom actual editor routing", () => {
       ),
     ).toBe(true);
     expect(
-      JSON.stringify(await m.provideHover().hover(editor, point("main", "greeting(", 2))),
+      JSON.stringify(await m.provideContextHelp().getHelp(editor, point("main", "greeting(", 2))),
     ).toContain("Build a greeting");
     expect(
       (await m.provideHoverSignature().getSignature(editor, point("main", "greeting(", 12)))
@@ -183,7 +183,9 @@ liveSuite("ide-phpantom actual editor routing", () => {
       await m.provideRefactor().rename(editors.main, point("main", "greeting(", 2), "welcome"),
     ).toBeNull();
     lumine.config.set("ide-phpantom.features.hover", false);
-    expect(await m.provideHover().hover(editors.main, point("main", "greeting(", 2))).toBeNull();
+    expect(
+      await m.provideContextHelp().getHelp(editors.main, point("main", "greeting(", 2)),
+    ).toBeNull();
     expect(session.state).toBe("running");
   });
   it("publishes diagnostics, clears them after edits and replaces an unloaded generation", async () => {

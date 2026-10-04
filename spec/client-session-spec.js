@@ -166,7 +166,7 @@ liveSuite("ide-phpantom actual editor routing", () => {
       "public function greeting(string $name): string",
     );
     lumine.config.set("ide-phpantom.features.format", false);
-    expect(await m.provideCodeFormatFile().formatEntireFile(editors.main)).toEqual([]);
+    expect(await m.provideCodeFormatFile().formatEntireFile(editors.main)).toBeNull();
     lumine.config.set("ide-phpantom.features.codeLens", false);
     expect(await m.provideCodeLens().codeLenses(editors.greeter)).toBeNull();
     const hiddenLensRename = await m

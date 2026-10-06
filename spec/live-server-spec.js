@@ -3,7 +3,8 @@ const path = require("node:path");
 const { LiveLspClient } = require("./helpers/live-lsp-client");
 const { createProject, removeProject } = require("./helpers/project");
 const exercise = require("./helpers/exercise-server");
-const serverPath = process.env.PHPANTOM_PATH || require("../lib/server").findOnPath("phpantom_lsp");
+const serverPath =
+  process.env.PHPANTOM_PATH || require("./helpers/server-resolver").findOnPath("phpantom_lsp");
 if (process.env.REQUIRE_PHPANTOM && !serverPath)
   throw new Error("CI requires a native PHPantom executable.");
 const liveSuite = serverPath ? describe : () => {};

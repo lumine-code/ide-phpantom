@@ -1,6 +1,7 @@
 const { Point } = require("lumine");
 const { createProject, removeProject, position } = require("./helpers/project");
-const serverPath = process.env.PHPANTOM_PATH || require("../lib/server").findOnPath("phpantom_lsp");
+const serverPath =
+  process.env.PHPANTOM_PATH || require("./helpers/server-resolver").findOnPath("phpantom_lsp");
 const liveSuite = serverPath ? describe : () => {};
 const until = async (check, label) => {
   const deadline = Date.now() + 30000;

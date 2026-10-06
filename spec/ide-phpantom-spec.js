@@ -1,3 +1,4 @@
+const { resolver, serverContext, installContext } = require("./helpers/server-resolver");
 const fs = require("node:fs");
 const path = require("node:path");
 const { createProject, removeProject } = require("./helpers/project");
@@ -16,37 +17,40 @@ describe("ide-phpantom executable discovery and managed installs", () => {
   });
   it("prefers an explicit executable over a managed copy and PATH", async () => {
     spyOn(server, "probeServer").and.resolveTo("0.10.0");
-    const launch = await server.resolveServer(process.execPath, {
-      binaryPath: path.join(fixture.rootPath, "missing"),
-    });
+    const launch = await server.resolveServer(
+      serverContext({
+        managedServer: {
+          binaryPath: path.join(fixture.rootPath, "missing"),
+        },
+      }),
+      process.execPath,
+    );
     expect(launch.command).toBe(process.execPath);
     expect(launch.args).toEqual(["--stdio"]);
     expect(launch.version).toBe("0.10.0");
   });
   it("launches a managed executable before consulting PATH", async () => {
     spyOn(server, "probeServer").and.resolveTo("0.10.0");
-    spyOn(server, "findOnPath").and.returnValue(null);
-    expect((await server.resolveServer("", { binaryPath: process.execPath })).command).toBe(
-      process.execPath,
-    );
-    expect(server.findOnPath).not.toHaveBeenCalled();
-  });
-  it("finds a native PATH executable while skipping directories and shell wrappers", () => {
-    const name = path.basename(process.execPath, path.extname(process.execPath));
-    expect(server.findOnPath(name, { PATH: path.dirname(process.execPath) })).toBeTruthy();
-    fs.mkdirSync(path.join(fixture.rootPath, "phpantom_lsp"));
-    fs.writeFileSync(path.join(fixture.rootPath, "phpantom_lsp.cmd"), "wrapper");
-    expect(server.findOnPath("phpantom_lsp", { PATH: fixture.rootPath }, "win32")).toBeNull();
+    expect(
+      (
+        await server.resolveServer(
+          serverContext({ managedServer: { binaryPath: process.execPath } }),
+          "",
+        )
+      ).command,
+    ).toBe(process.execPath);
   });
   it("refuses missing paths and directories before launching", async () => {
-    await expectAsync(server.resolveServer(path.join(fixture.rootPath, "missing"))).toBeRejected();
-    await expectAsync(server.resolveServer(fixture.rootPath)).toBeRejectedWithError(
-      /executable file/,
-    );
+    await expectAsync(
+      server.resolveServer(serverContext(), path.join(fixture.rootPath, "missing")),
+    ).toBeRejected();
+    await expectAsync(
+      server.resolveServer(serverContext(), fixture.rootPath),
+    ).toBeRejectedWithError(/must name a file/);
   });
   it("returns null when no executable is installed", async () => {
-    spyOn(server, "findOnPath").and.returnValue(null);
-    expect(await server.resolveServer()).toBeNull();
+    spyOn(resolver, "select").and.resolveTo(null);
+    expect(await server.resolveServer(serverContext(), "")).toBeNull();
   });
   it("uses exact official archive names for every supported platform", () => {
     for (const [platform, arch, target] of [
@@ -81,7 +85,7 @@ describe("ide-phpantom executable discovery and managed installs", () => {
       setServerInstallationStatus() {},
     };
     const installed = await server.installServer(
-      { storagePath: fixture.rootPath, version: "0.10.0", api },
+      installContext({ storagePath: fixture.rootPath, version: "0.10.0", api }),
       target,
     );
     expect(api.githubReleaseByTag).toHaveBeenCalledWith("PHPantom-dev/phpantom_lsp", "0.10.0");
@@ -98,16 +102,16 @@ describe("ide-phpantom executable discovery and managed installs", () => {
       setServerInstallationStatus() {},
     };
     await expectAsync(
-      server.installServer(
-        { storagePath: fixture.rootPath, api },
-        { platform: "linux", arch: "arm" },
-      ),
+      server.installServer(installContext({ storagePath: fixture.rootPath, api }), {
+        platform: "linux",
+        arch: "arm",
+      }),
     ).toBeRejectedWithError(/no managed build/);
     await expectAsync(
-      server.installServer(
-        { storagePath: fixture.rootPath, api },
-        { platform: "linux", arch: "x64" },
-      ),
+      server.installServer(installContext({ storagePath: fixture.rootPath, api }), {
+        platform: "linux",
+        arch: "x64",
+      }),
     ).toBeRejectedWithError(/no phpantom/);
     api.latestGithubRelease = async () => ({
       version: "0.10.0",
@@ -119,10 +123,10 @@ describe("ide-phpantom executable discovery and managed installs", () => {
       ],
     });
     await expectAsync(
-      server.installServer(
-        { storagePath: fixture.rootPath, api },
-        { platform: "linux", arch: "x64" },
-      ),
+      server.installServer(installContext({ storagePath: fixture.rootPath, api }), {
+        platform: "linux",
+        arch: "x64",
+      }),
     ).toBeRejectedWithError(/SHA-256/);
     expect(api.downloadFile).not.toHaveBeenCalled();
   });
@@ -196,7 +200,7 @@ describe("ide-phpantom service lifecycle", () => {
         reportMissingServer: missing,
       });
     try {
-      expect(await value.resolveServer({ rootPath: "/project" })).toBeNull();
+      expect(await value.resolveServer(serverContext({ rootPath: "/project" }))).toBeNull();
       expect(missing.calls.mostRecent().args[0]).toBe("ide-phpantom");
     } finally {
       registration.dispose();

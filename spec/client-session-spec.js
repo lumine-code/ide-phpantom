@@ -110,11 +110,15 @@ liveSuite("ide-phpantom actual editor routing", () => {
       .findReferences(editor, point("main", "greeting(", 2));
     for (const key of ["named", "greeter", "main"])
       expect(refs.references.some(({ path }) => path === fixture.files[key])).toBe(true);
-    expect(
-      (await m.provideSymbol().getSymbols({ type: "file", editor: editors.greeter })).some(
-        ({ name }) => name === "greeting",
-      ),
-    ).toBe(true);
+    const documentProvider = m.provideDocumentSymbolProvider();
+    const source = documentProvider
+      .getDocumentSymbolSources(editors.greeter)
+      .find(({ id }) => id === "ide-client:ide-phpantom");
+    expect(source.state).toBe("ready");
+    const symbols = await documentProvider.getDocumentSymbols(editors.greeter, {
+      sourceId: source.id,
+    });
+    expect(symbols.some(({ name }) => name === "greeting")).toBe(true);
     expect(
       (await m.provideInlayHints().inlayHints(editor, [0, 3])).some(({ label }) =>
         label.includes("name:"),
@@ -148,8 +152,13 @@ liveSuite("ide-phpantom actual editor routing", () => {
   it("executes a prototype lens, applies an implementation action and honours feature gates", async () => {
     const session = await ready(),
       m = main();
-    const lenses = await m.provideCodeLens().codeLenses(editors.greeter),
-      prototype = lenses.find(({ title, execute }) => title.includes("Named") && execute);
+    expect(session.supports("textDocument/codeLens", editors.greeter)).toBe(true);
+    // Capability registration and server refreshes invalidate requests during
+    // initial project analysis; wait for an executable lens from the current epoch.
+    const prototype = await until(async () => {
+      const lenses = await m.provideCodeLens().codeLenses(editors.greeter);
+      return lenses?.find(({ title, execute }) => title.includes("Named") && execute);
+    }, "PHP prototype lens after project analysis");
     expect(prototype).toBeTruthy();
     await prototype.execute();
     await until(

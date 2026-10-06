@@ -29,9 +29,9 @@ liveSuite("ide-phpantom actual editor routing", () => {
     paths = lumine.project.getPaths();
     published = [];
     lumine.config.set("ide-phpantom.serverPath", serverPath);
-    for (const name of ["language-php", "ide-client", "ide-phpantom"])
+    for (const name of ["language-php", "ide", "ide-phpantom"])
       await lumine.packages.activatePackage(name);
-    service = lumine.packages.getActivePackage("ide-client").mainModule.provideIdeClient();
+    service = lumine.packages.getActivePackage("ide").mainModule.provideIde();
     subscription = service.onDidPublishDiagnostics((value) => published.push(value));
     lumine.project.setPaths([fixture.rootPath]);
     for (const key of ["main", "greeter", "named", "incomplete", "broken"]) {
@@ -44,7 +44,7 @@ liveSuite("ide-phpantom actual editor routing", () => {
     for (const editor of Object.values(editors)) editor?.destroy();
     for (const editor of lumine.workspace.getTextEditors())
       if (editor.getPath()?.startsWith(fixture.rootPath)) editor.destroy();
-    for (const name of ["ide-phpantom", "ide-client", "language-php"])
+    for (const name of ["ide-phpantom", "ide", "language-php"])
       await lumine.packages.deactivatePackage(name);
     for (const key of [
       "serverPath",
@@ -83,7 +83,7 @@ liveSuite("ide-phpantom actual editor routing", () => {
     );
     return session;
   };
-  const main = () => lumine.packages.getActivePackage("ide-client").mainModule;
+  const main = () => lumine.packages.getActivePackage("ide").mainModule;
   it("routes completion, hover, signature, symbols, references, hints, tokens and formatting", async () => {
     await ready();
     const m = main(),
@@ -114,7 +114,7 @@ liveSuite("ide-phpantom actual editor routing", () => {
     const documentProvider = m.provideDocumentSymbolProvider();
     const source = documentProvider
       .getDocumentSymbolSources(editors.greeter)
-      .find(({ id }) => id === "ide-client:ide-phpantom");
+      .find(({ id }) => id === "ide:ide-phpantom");
     expect(source.state).toBe("ready");
     const symbols = await documentProvider.getDocumentSymbols(editors.greeter, {
       sourceId: source.id,

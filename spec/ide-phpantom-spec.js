@@ -137,7 +137,7 @@ describe("ide-phpantom service lifecycle", () => {
   beforeEach(async () => {
     main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
     cleanup = jasmine.createSpy("cleanup");
-    edge = main.consumeIdeClient({
+    edge = main.consumeIde({
       registerAdapter(value) {
         adapter = value;
         return { dispose: cleanup };
@@ -161,7 +161,7 @@ describe("ide-phpantom service lifecycle", () => {
   });
   it("keeps independent provider edges independent", () => {
     const secondCleanup = jasmine.createSpy("secondCleanup"),
-      second = main.consumeIdeClient({
+      second = main.consumeIde({
         registerAdapter() {
           return { dispose: secondCleanup };
         },
@@ -192,7 +192,7 @@ describe("ide-phpantom service lifecycle", () => {
     spyOn(require("../lib/server"), "resolveServer").and.resolveTo(null);
     let value;
     const missing = jasmine.createSpy("missing"),
-      registration = main.consumeIdeClient({
+      registration = main.consumeIde({
         registerAdapter(v) {
           value = v;
           return { dispose() {} };
@@ -213,7 +213,7 @@ describe("ide-phpantom canonical rename targets", () => {
   beforeEach(async () => {
     fixture = createProject();
     const main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
-    edge = main.consumeIdeClient({
+    edge = main.consumeIde({
       registerAdapter(value) {
         adapter = value;
         return { dispose() {} };

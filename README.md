@@ -2,7 +2,7 @@
 
 Provide PHP language intelligence through PHPantom.
 
-Registers the native [PHPantom](https://github.com/PHPantom-dev/phpantom_lsp) language server with `ide-client` for PHP source and mixed HTML/PHP files. Its built-in analysis and formatter need no PHP runtime.
+Registers the native [PHPantom](https://github.com/PHPantom-dev/phpantom_lsp) language server with `ide` for PHP source and mixed HTML/PHP files. Its built-in analysis and formatter need no PHP runtime.
 
 ## Features
 
@@ -20,7 +20,7 @@ Registers the native [PHPantom](https://github.com/PHPantom-dev/phpantom_lsp) la
 
 To install `ide-phpantom` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-phpantom`.
 
-Install `ide-client`, `language-php` and the frontends you want, such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format`. Select an existing `phpantom_lsp` executable in Server Path or install it through `ide-client:manage-servers`.
+Install `ide`, `language-php` and the frontends you want, such as `autocomplete`, `linter`, `hover`, `hyperclick`, `refactor` and `code-format`. Select an existing `phpantom_lsp` executable in Server Path or install it through `ide:manage-servers`.
 
 Managed releases support x64 and arm64 Windows, macOS and Linux. The core server needs no PHP or Composer executable; external tools such as PHPStan or PHP-CS-Fixer keep their own runtime requirements.
 
@@ -48,7 +48,7 @@ Project configuration can also select indexing, diagnostics and external formatt
 
 ## Services
 
-- `ide-client`: consumed to register PHPantom and preserve safe project rename targets.
+- `ide`: consumed to register PHPantom and preserve safe project rename targets.
 - `background-tips.provider`: provided to explain Composer-aware PHP intelligence.
 
 ## Contributing

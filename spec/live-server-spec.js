@@ -23,7 +23,7 @@ liveSuite("ide-phpantom real PHPantom protocol", () => {
     fixture = createProject();
     const main = (await lumine.packages.activatePackage("ide-phpantom")).mainModule;
     lumine.config.set("ide-phpantom.serverPath", serverPath);
-    edge = main.consumeIdeClient({
+    edge = main.consumeIde({
       registerAdapter(value) {
         adapter = value;
         client = new LiveLspClient(value, fixture.rootPath);
@@ -76,7 +76,7 @@ liveSuite("ide-phpantom real PHPantom protocol", () => {
     await exercise.hierarchyAndProtocol(client, fixture);
   });
   it("installs the official verified native archive through the hub and launches the managed copy", async () => {
-    const packagePath = (await lumine.packages.loadPackage("ide-client")).path;
+    const packagePath = (await lumine.packages.loadPackage("ide")).path;
     const ManagedServers = require(path.join(packagePath, "lib", "managed-servers"));
     const managed = new ManagedServers(
       {

@@ -16,6 +16,8 @@ Registers the native [PHPantom](https://github.com/PHPantom-dev/phpantom_lsp) la
 - **Composer awareness**: reads PSR-4 mappings and project dependencies for cross-file intelligence.
 - **Managed installation**: downloads official native releases and verifies their SHA-256 digests.
 
+![PHPantom validates a function return type.](.github/demo.png)
+
 ## Installation
 
 To install `ide-phpantom` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/ide-phpantom`.

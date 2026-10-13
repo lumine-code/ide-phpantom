@@ -1,0 +1,16 @@
+{
+  "title": "ide-phpantom",
+  "description": "PHPantom validates a function return type.",
+  "recordedOn": "2026-10-13",
+  "sourceRevision": "3172ec0524e51dcd9b60fbf0072e15c348df0901",
+  "mode": "normal",
+  "fontSettings": "default",
+  "images": [
+    {
+      "file": "demo.png",
+      "label": "PHPantom validates a function return type.",
+      "width": 1100,
+      "height": 490
+    }
+  ]
+}

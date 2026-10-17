@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { createGithubFetch } = require("./helpers/github-fetch");
 const { LiveLspClient } = require("./helpers/live-lsp-client");
 const { createProject, removeProject } = require("./helpers/project");
 const exercise = require("./helpers/exercise-server");
@@ -83,6 +84,7 @@ liveSuite("ide-phpantom real PHPantom protocol", () => {
     spyOn(manager, "reattachAll").and.resolveTo();
     const managed = new ManagedServers(manager, {
       storageRoot: path.join(fixture.rootPath, "managed"),
+      fetchUrl: createGithubFetch({ token: process.env.LUMINE_TEST_GITHUB_TOKEN }),
     });
     manager.setManagedServers(managed);
     manager.registerAdapter(adapter);

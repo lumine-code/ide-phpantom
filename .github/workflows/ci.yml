@@ -43,7 +43,7 @@ jobs:
     env:
       LUMINE_JASMINE_REPORTER: list
       LUMINE_TEST_PACKAGES: ide language-php
-      PHPANTOM_VERSION: 0.10.0
+      PHPANTOM_VERSION: 0.11.1
       REQUIRE_PHPANTOM: 1
     steps:
       - uses: actions/checkout@v7
@@ -69,7 +69,7 @@ jobs:
       - name: Install the exact checksum-verified native PHPantom release
         run: |
           mkdir "$GITHUB_WORKSPACE/phpantom"
-          curl --fail --location --retry 3 --output phpantom.tar.gz https://github.com/PHPantom-dev/phpantom_lsp/releases/download/0.10.0/phpantom_lsp-x86_64-unknown-linux-gnu.tar.gz
+          curl --fail --location --retry 3 --output phpantom.tar.gz https://github.com/PHPantom-dev/phpantom_lsp/releases/download/0.11.1/phpantom_lsp-x86_64-unknown-linux-gnu.tar.gz
           echo "2b385588779cdfdb804371f99c9161b0ef41b6e57d34ed4e1b6963686f81dc20  phpantom.tar.gz" | sha256sum --check
           tar -xzf phpantom.tar.gz -C "$GITHUB_WORKSPACE/phpantom"
           chmod +x "$GITHUB_WORKSPACE/phpantom/phpantom_lsp"

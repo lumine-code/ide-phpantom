@@ -41,7 +41,7 @@ liveSuite("ide-phpantom real PHPantom protocol", () => {
   });
   const start = async () => {
     const result = await client.start();
-    expect(result.serverInfo.version).toBe(process.env.PHPANTOM_VERSION || "0.10.0");
+    expect(result.serverInfo.version).toBe(process.env.PHPANTOM_VERSION || "0.11.1");
     await exercise.openProject(client, fixture);
   };
   it("reports and clears actual pull diagnostics after a document edit", async () => {
@@ -90,9 +90,9 @@ liveSuite("ide-phpantom real PHPantom protocol", () => {
     manager.registerAdapter(adapter);
     try {
       const record = await managed.install(adapter.id, {
-        version: process.env.PHPANTOM_VERSION || "0.10.0",
+        version: process.env.PHPANTOM_VERSION || "0.11.1",
       });
-      expect(record.version).toBe("0.10.0");
+      expect(record.version).toBe(process.env.PHPANTOM_VERSION || "0.11.1");
       const installed = managed.installFor(adapter);
       expect(fs.statSync(installed.binaryPath).isFile()).toBe(true);
       lumine.config.set("ide-phpantom.serverPath", "");

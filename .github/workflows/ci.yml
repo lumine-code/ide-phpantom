@@ -70,7 +70,7 @@ jobs:
         run: |
           mkdir "$GITHUB_WORKSPACE/phpantom"
           curl --fail --location --retry 3 --output phpantom.tar.gz https://github.com/PHPantom-dev/phpantom_lsp/releases/download/0.11.1/phpantom_lsp-x86_64-unknown-linux-gnu.tar.gz
-          echo "2b385588779cdfdb804371f99c9161b0ef41b6e57d34ed4e1b6963686f81dc20  phpantom.tar.gz" | sha256sum --check
+          echo "906dd8104d4bf82aa1c4225fba297a90ff1cff0552df635ee858fc272f445fc6  phpantom.tar.gz" | sha256sum --check
           tar -xzf phpantom.tar.gz -C "$GITHUB_WORKSPACE/phpantom"
           chmod +x "$GITHUB_WORKSPACE/phpantom/phpantom_lsp"
           echo "PHPANTOM_PATH=$GITHUB_WORKSPACE/phpantom/phpantom_lsp" >> "$GITHUB_ENV"

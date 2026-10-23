@@ -302,20 +302,33 @@ describe("ide-phpantom canonical rename targets", () => {
   };
   it("leaves other versions untouched without querying a prototype", async () => {
     const request = jasmine.createSpy("request");
-    expect(
-      await adapter.resolveRenameTarget(
-        { uri: fixture.uris.main, position: { line: 3, character: 34 } },
-        { session: session("0.11.0", request) },
-      ),
-    ).toBeUndefined();
+    for (const version of ["0.9.0", "0.12.0", "1.0.0", "", undefined])
+      expect(
+        await adapter.resolveRenameTarget(
+          { uri: fixture.uris.main, position: { line: 3, character: 34 } },
+          { session: session(version, request) },
+        ),
+      ).toBeUndefined();
     expect(request).not.toHaveBeenCalled();
   });
-  it("follows the protocol command arguments independently of a lens's human label", async () => {
+  for (const version of ["0.10.0", "0.11.0", "0.11.1", "0.11.1+native"])
+    it(`follows canonical prototype arguments in PHPantom ${version} independently of its label`, async () => {
+      const request = protocol(fixture.uris.named);
+      expect(
+        await adapter.resolveRenameTarget(
+          { uri: fixture.uris.main, position: { line: 3, character: 34 } },
+          { session: session(version, request) },
+        ),
+      ).toEqual({ uri: fixture.uris.named, position: { line: 2, character: 34 } });
+    });
+  it("uses the probed release when initialize omits the server version", async () => {
     const request = protocol(fixture.uris.named);
+    const current = session("0.11.1", request);
+    delete current.serverInfo;
     expect(
       await adapter.resolveRenameTarget(
         { uri: fixture.uris.main, position: { line: 3, character: 34 } },
-        { session: session("0.10.0", request) },
+        { session: current },
       ),
     ).toEqual({ uri: fixture.uris.named, position: { line: 2, character: 34 } });
   });

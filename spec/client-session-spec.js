@@ -158,7 +158,8 @@ liveSuite("ide-phpantom actual editor routing", () => {
     // initial project analysis; wait for an executable lens from the current epoch.
     const prototype = await until(async () => {
       const lenses = await m.provideCodeLens().codeLenses(editors.greeter);
-      return lenses?.find(({ title, execute }) => title.includes("Named") && execute);
+      // Reference counts can be unresolved placeholders beside the prototype.
+      return lenses?.find(({ title, execute }) => title?.includes("Named") && execute);
     }, "PHP prototype lens after project analysis");
     expect(prototype).toBeTruthy();
     await prototype.execute();

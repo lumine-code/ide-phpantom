@@ -30,7 +30,7 @@ Managed releases support x64 and arm64 Windows, macOS and Linux. The core server
 
 Open the folder containing `composer.json` as a project. PHPantom resolves Composer autoload paths automatically and scans PHP files directly in projects without Composer. The adapter serves plain and mixed PHP files; Blade templates use their own grammar and are outside this adapter's document scope.
 
-For PHPantom 0.10.0, the adapter resolves the canonical method prototype before renaming an implementation so the interface, implementation and callers change together. A method shared by independent inheritance contracts is refused before edits are applied because this upstream version cannot safely rename all contracts. Built-in or external prototypes remain outside project refactoring.
+For PHPantom 0.10.0, 0.11.0 and 0.11.1, the adapter resolves the canonical method prototype before renaming an implementation so the interface, implementation and callers change together. A method shared by independent inheritance contracts is refused before edits are applied because these upstream versions cannot safely rename all contracts. Built-in or external prototypes remain outside project refactoring.
 
 Reference-count lenses name another editor's client command, so the shared client omits them. Method-prototype lenses use a server command and remain executable; regular references are available through `find-references`. PHPantom does not implement call hierarchy or range formatting.
 
